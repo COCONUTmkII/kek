@@ -20,7 +20,7 @@ var videoInput;
 var videoOutput;
 var webRtcPeer;
 var from;
-
+var microphoneEnabled = true;
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;
@@ -29,19 +29,19 @@ const REGISTERED = 2;
 
 function setRegisterState(nextState) {
 	switch (nextState) {
-	case NOT_REGISTERED:
-		enableButton('#register', 'register()');
-		setCallState(DISABLED);
-		break;
-	case REGISTERING:
-		disableButton('#register');
-		break;
-	case REGISTERED:
-		disableButton('#register');
-		setCallState(NO_CALL);
-		break;
-	default:
-		return;
+		case NOT_REGISTERED:
+			enableButton('#register', 'register()');
+			setCallState(DISABLED);
+			break;
+		case REGISTERING:
+			disableButton('#register');
+			break;
+		case REGISTERED:
+			disableButton('#register');
+			setCallState(NO_CALL);
+			break;
+		default:
+			return;
 	}
 	registerState = nextState;
 }
@@ -55,29 +55,29 @@ const IN_PLAY = 4;
 
 function setCallState(nextState) {
 	switch (nextState) {
-	case NO_CALL:
-		enableButton('#call', 'call()');
-		disableButton('#terminate');
-		disableButton('#play');
-		break;
-	case DISABLED:
-		disableButton('#call');
-		disableButton('#terminate');
-		disableButton('#play');
-		break;
-	case POST_CALL:
-		enableButton('#call', 'call()');
-		disableButton('#terminate');
-		enableButton('#play', 'play()');
-		break;
-	case IN_CALL:
-	case IN_PLAY:
-		disableButton('#call');
-		enableButton('#terminate', 'stop()');
-		disableButton('#play');
-		break;
-	default:
-		return;
+		case NO_CALL:
+			enableButton('#call', 'call()');
+			disableButton('#terminate');
+			disableButton('#play');
+			break;
+		case DISABLED:
+			disableButton('#call');
+			disableButton('#terminate');
+			disableButton('#play');
+			break;
+		case POST_CALL:
+			enableButton('#call', 'call()');
+			disableButton('#terminate');
+			enableButton('#play', 'play()');
+			break;
+		case IN_CALL:
+		case IN_PLAY:
+			disableButton('#call');
+			enableButton('#terminate', 'stop()');
+			disableButton('#play');
+			break;
+		default:
+			return;
 	}
 	callState = nextState;
 }
@@ -99,47 +99,47 @@ window.onload = function() {
 	videoInput = document.getElementById('videoInput');
 	videoOutput = document.getElementById('videoOutput');
 	document.getElementById('name').focus();
-}
+};
 
 window.onbeforeunload = function() {
 	ws.close();
-}
+};
 
 ws.onmessage = function(message) {
 	var parsedMessage = JSON.parse(message.data);
 	console.info('Received message: ' + message.data);
 
 	switch (parsedMessage.id) {
-	case 'registerResponse':
-		registerResponse(parsedMessage);
-		break;
-	case 'callResponse':
-		callResponse(parsedMessage);
-		break;
-	case 'incomingCall':
-		incomingCall(parsedMessage);
-		break;
-	case 'startCommunication':
-		startCommunication(parsedMessage);
-		break;
-	case 'stopCommunication':
-		console.info('Communication ended by remote peer');
-		stop(true);
-		break;
-	case 'playResponse':
-		playResponse(parsedMessage);
-		break;
-	case 'playEnd':
-		playEnd();
-		break;
-	case 'iceCandidate':
-		webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
-			if (error)
-				return console.error('Error adding candidate: ' + error);
-		});
-		break;
-	default:
-		console.error('Unrecognized message', parsedMessage);
+		case 'registerResponse':
+			registerResponse(parsedMessage);
+			break;
+		case 'callResponse':
+			callResponse(parsedMessage);
+			break;
+		case 'incomingCall':
+			incomingCall(parsedMessage);
+			break;
+		case 'startCommunication':
+			startCommunication(parsedMessage);
+			break;
+		case 'stopCommunication':
+			console.info('Communication ended by remote peer');
+			stop(true);
+			break;
+		case 'playResponse':
+			playResponse(parsedMessage);
+			break;
+		case 'playEnd':
+			playEnd();
+			break;
+		case 'iceCandidate':
+			webRtcPeer.addIceCandidate(parsedMessage.candidate, function(error) {
+				if (error)
+					return console.error('Error adding candidate: ' + error);
+			});
+			break;
+		default:
+			console.error('Unrecognized message', parsedMessage);
 	}
 }
 
@@ -150,7 +150,7 @@ function registerResponse(message) {
 	} else {
 		setRegisterState(NOT_REGISTERED);
 		var errorMessage = message.response ? message.response
-				: 'Unknown reason for register rejection.';
+			: 'Unknown reason for register rejection.';
 		console.log(errorMessage);
 		document.getElementById('name').focus();
 		alert('Error registering user. See console for further information.');
@@ -212,22 +212,25 @@ function incomingCall(message) {
 
 	setCallState(DISABLED);
 	if (confirm('User ' + message.from
-			+ ' is calling you. Do you accept the call?')) {
+		+ ' is calling you. Do you accept the call?')) {
 		showSpinner(videoInput, videoOutput);
 
 		from = message.from;
 		var options = {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
-			onicecandidate : onIceCandidate
-		}
+			onicecandidate : onIceCandidate,
+			configuration: {iceServers: [
+					{"url":"stun:stun.I.google.com:19302"}
+				]}
+		};
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
-				function(error) {
-					if (error) {
-						return console.error(error);
-					}
-					this.generateOffer(onOfferIncomingCall);
-				});
+			function(error) {
+				if (error) {
+					return console.error(error);
+				}
+				this.generateOffer(onOfferIncomingCall);
+			});
 	} else {
 		var response = {
 			id : 'incomingCallResponse',
@@ -280,15 +283,28 @@ function call() {
 	var options = {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
-		onicecandidate : onIceCandidate
-	}
+		onicecandidate : onIceCandidate,
+		configuration: {iceServers: [
+				{"url":"stun:stun.I.google.com:19302"}
+			]}
+	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
-			function(error) {
-				if (error) {
-					return console.error(error);
-				}
-				this.generateOffer(onOfferCall);
-			});
+		function(error) {
+			if (error) {
+				return console.error(error);
+			}
+			this.generateOffer(onOfferCall);
+		});
+}
+
+function changeMicrophoneStatus() {
+	if (microphoneEnabled){
+		this.caller.stream.getAudioTracks()[0].enabled = false;
+		microphoneEnabled = false;
+	} else {
+		this.caller.stream.getAudioTracks()[0].enabled = true;
+		microphoneEnabled = true;
+	}
 }
 
 function onOfferCall(error, offerSdp) {
@@ -318,15 +334,18 @@ function play() {
 
 	var options = {
 		remoteVideo : videoOutput,
-		onicecandidate : onIceCandidate
-	}
+		onicecandidate : onIceCandidate,
+		configuration: {iceServers: [
+				{"url":"stun:stun.I.google.com:19302"}
+			]}
+	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
-			function(error) {
-				if (error) {
-					return console.error(error);
-				}
-				this.generateOffer(onOfferPlay);
-			});
+		function(error) {
+			if (error) {
+				return console.error(error);
+			}
+			this.generateOffer(onOfferPlay);
+		});
 }
 
 function onOfferPlay(error, offerSdp) {
@@ -389,7 +408,7 @@ function showSpinner() {
 function hideSpinner() {
 	for (var i = 0; i < arguments.length; i++) {
 		arguments[i].src = '';
-		arguments[i].poster = './img/webrtc.png';
+		arguments[i].poster = './img/INFIN.png';
 		arguments[i].style.background = '';
 	}
 }

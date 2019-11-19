@@ -1,0 +1,39 @@
+.nav-top-elements{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: cornsilk;
+}
+.nav-top-elements li {
+    float: left;
+}
+.nav-top-elements li a {
+    display: block;
+    text-align: center;
+    padding: 16px 16px;
+    text-decoration: none;
+    color: #111111;
+}
+.nav-top-elements li a:hover {
+    background-color: gray;
+}
+
+.nav-localization-elements{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: cornsilk;
+}
+
+.nav-localization-elements li {
+    float: right;
+}
+.nav-localization-elements li a{
+    display: block;
+    text-align: center;
+    padding: 16px 16px;
+    text-decoration: none;
+    color: gray;
+}
