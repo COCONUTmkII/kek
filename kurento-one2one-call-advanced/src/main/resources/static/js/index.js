@@ -220,9 +220,11 @@ function incomingCall(message) {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
 			onicecandidate : onIceCandidate,
-			configuration: {iceServers: [
-					{"url":"stun:stun.I.google.com:19302"}
-				]}
+            configuration: {iceServers: [
+                    {"url":"turn:192.158.29.39:3478?transport=udp"},
+                    {"username":"28224511:1379330808"},
+                    {"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
+                ]}
 		};
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
@@ -284,9 +286,14 @@ function call() {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
-		configuration: {iceServers: [
+		/*configuration: {iceServers: [
 				{"url":"stun:stun.I.google.com:19302"}
-			]}
+			]}*/
+		configuration: {iceServers: [
+                {"url":"turn:192.158.29.39:3478?transport=udp"},
+                {"username":"28224511:1379330808"},
+                {"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
+            ]}
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 		function(error) {
@@ -297,12 +304,14 @@ function call() {
 		});
 }
 
+
 function changeMicrophoneStatus() {
+	let media = navigator.getUserMedia();
 	if (microphoneEnabled){
-		this.caller.stream.getAudioTracks()[0].enabled = false;
+		media.getAudioTracks()[0].enabled = false;
 		microphoneEnabled = false;
 	} else {
-		this.caller.stream.getAudioTracks()[0].enabled = true;
+		media.getAudioTracks()[0].enabled = true;
 		microphoneEnabled = true;
 	}
 }
@@ -335,9 +344,11 @@ function play() {
 	var options = {
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
-		configuration: {iceServers: [
-				{"url":"stun:stun.I.google.com:19302"}
-			]}
+        configuration: {iceServers: [
+                {"url":"turn:192.158.29.39:3478?transport=udp"},
+                {"username":"28224511:1379330808"},
+                {"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
+            ]}
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
 		function(error) {
