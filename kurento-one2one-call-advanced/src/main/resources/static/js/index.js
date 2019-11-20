@@ -308,9 +308,11 @@ function call() {
 function changeMicrophoneStatus() {
 	if (microphoneEnabled) {
 		webRtcPeer.audioEnabled = false;
+		webRtcPeer.showLocalVideo(false);
 		microphoneEnabled = false;
 	} else {
 		webRtcPeer.audioEnabled = true;
+		webRtcPeer.showLocalVideo(true);
 		microphoneEnabled = true;
 	}
 }
