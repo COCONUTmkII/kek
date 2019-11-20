@@ -305,13 +305,13 @@ function call() {
 }
 
 
-function changeMicrophoneStatus() {
-	let media = navigator.getUserMedia();
+function changeMicrophoneStatus(stream) {
+	let media = stream.getUserMedia;
 	if (microphoneEnabled){
-		media.getAudioTracks()[0].enabled = false;
+		media.audioEnabled = false;
 		microphoneEnabled = false;
 	} else {
-		media.getAudioTracks()[0].enabled = true;
+		media.audioEnabled = true;
 		microphoneEnabled = true;
 	}
 }
