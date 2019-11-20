@@ -305,17 +305,9 @@ function call() {
 }
 
 
-function changeMicrophoneStatus() {
-	let connection;
-	connection.onstream = function (e) {
-		if (e.type === 'local') {
-			window.streamid = e.streamid;
-			connection.streams[e.streamid].mute({
-				audio: true,
-				video: true
-			});
-		}
-	};
+function changeMicrophoneStatus(stream) {
+	this.stream.getAudioTracks()[0].enabled = false;
+	}
 /*    if (microphoneEnabled) {
         media.enabled = false;
         microphoneEnabled = false;
@@ -323,7 +315,7 @@ function changeMicrophoneStatus() {
         media.enabled = true;
         microphoneEnabled = true;
     }*/
-}
+
 
 function onOfferCall(error, offerSdp) {
 	if (error)
