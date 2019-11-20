@@ -306,18 +306,23 @@ function call() {
 
 
 function changeMicrophoneStatus() {
-    localStream.getTracks().forEach((t) => {
-        if (t.kind === 'audio'){
-            t.enabled = !t.enabled;
-        }
-    }); //SASI SUKA
-    if (microphoneEnabled) {
+	let connection;
+	connection.onstream = function (e) {
+		if (e.type === 'local') {
+			window.streamid = e.streamid;
+			connection.streams[e.streamid].mute({
+				audio: true,
+				video: true
+			});
+		}
+	};
+/*    if (microphoneEnabled) {
         media.enabled = false;
         microphoneEnabled = false;
     } else {
         media.enabled = true;
         microphoneEnabled = true;
-    }
+    }*/
 }
 
 function onOfferCall(error, offerSdp) {
