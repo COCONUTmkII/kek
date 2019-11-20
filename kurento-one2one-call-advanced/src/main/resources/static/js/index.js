@@ -305,15 +305,19 @@ function call() {
 }
 
 
-function changeMicrophoneStatus(stream) {
-	let media = stream.getUserMedia;
-	if (microphoneEnabled){
-		media.audioEnabled = false;
-		microphoneEnabled = false;
-	} else {
-		media.audioEnabled = true;
-		microphoneEnabled = true;
-	}
+function changeMicrophoneStatus() {
+    localStream.getTracks().forEach((t) => {
+        if (t.kind === 'audio'){
+            t.enabled = !t.enabled;
+        }
+    });
+    if (microphoneEnabled) {
+        media.enabled = false;
+        microphoneEnabled = false;
+    } else {
+        media.enabled = true;
+        microphoneEnabled = true;
+    }
 }
 
 function onOfferCall(error, offerSdp) {
