@@ -310,7 +310,7 @@ function changeMicrophoneStatus() {
         if (t.kind === 'audio'){
             t.enabled = !t.enabled;
         }
-    });
+    }); //SASI SUKA
     if (microphoneEnabled) {
         media.enabled = false;
         microphoneEnabled = false;
