@@ -220,9 +220,9 @@ function incomingCall(message) {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
 			onicecandidate : onIceCandidate,
-/*			configuration: {iceServers: [
+			configuration: {iceServers: [
 					{"url":"stun:stun.I.google.com:19302"}
-				]}*/
+				]}
 		};
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
@@ -284,9 +284,9 @@ function call() {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
-/*		configuration: {iceServers: [
+		configuration: {iceServers: [
 				{"url":"stun:stun.I.google.com:19302"}
-			]}*/
+			]}
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 		function(error) {
@@ -335,9 +335,9 @@ function play() {
 	var options = {
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
-/*		configuration: {iceServers: [
+		configuration: {iceServers: [
 				{"url":"stun:stun.I.google.com:19302"}
-			]}*/
+			]}
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
 		function(error) {
