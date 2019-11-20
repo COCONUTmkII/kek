@@ -220,11 +220,11 @@ function incomingCall(message) {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
 			onicecandidate : onIceCandidate,
-            configuration: {iceServers: [
-                    {"url":"turn:192.158.29.39:3478?transport=udp"},
-                    {"username":"28224511:1379330808"},
-                    {"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
-                ]}
+			configuration: {iceServers: [
+					{"urls":"turn:192.158.29.39:3478?transport=udp",
+						"username":"28224511:1379330808",
+						"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
+				]}
 		};
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
@@ -290,10 +290,10 @@ function call() {
 				{"url":"stun:stun.I.google.com:19302"}
 			]}*/
 		configuration: {iceServers: [
-                {"url":"turn:192.158.29.39:3478?transport=udp"},
-                {"username":"28224511:1379330808"},
-                {"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
-            ]}
+				{"urls":"turn:192.158.29.39:3478?transport=udp",
+					"username":"28224511:1379330808",
+					"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
+			]}
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 		function(error) {
@@ -345,9 +345,9 @@ function play() {
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
         configuration: {iceServers: [
-                {"url":"turn:192.158.29.39:3478?transport=udp"},
-                {"username":"28224511:1379330808"},
-                {"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
+                {"urls":"turn:192.158.29.39:3478?transport=udp",
+                "username":"28224511:1379330808",
+                "credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
             ]}
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
