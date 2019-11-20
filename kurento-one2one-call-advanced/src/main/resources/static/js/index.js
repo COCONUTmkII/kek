@@ -305,17 +305,15 @@ function call() {
 }
 
 
-function changeMicrophoneStatus(stream) {
-	this.stream.getAudioTracks()[0].enabled = false;
+function changeMicrophoneStatus() {
+	if (microphoneEnabled) {
+		webRtcPeer.audioEnabled = false;
+		microphoneEnabled = false;
+	} else {
+		webRtcPeer.audioEnabled = true;
+		microphoneEnabled = true;
 	}
-/*    if (microphoneEnabled) {
-        media.enabled = false;
-        microphoneEnabled = false;
-    } else {
-        media.enabled = true;
-        microphoneEnabled = true;
-    }*/
-
+}
 
 function onOfferCall(error, offerSdp) {
 	if (error)
@@ -431,4 +429,4 @@ function hideSpinner() {
 $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
 	event.preventDefault();
 	$(this).ekkoLightbox();
-});
+})
