@@ -220,11 +220,11 @@ function incomingCall(message) {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
 			onicecandidate : onIceCandidate,
-			configuration: {iceServers: [
+/*			configuration: {iceServers: [
 					{"urls":"turn:192.158.29.39:3478?transport=udp",
 						"username":"28224511:1379330808",
 						"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
-				]}
+				]}*/
 		};
 		webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 			function(error) {
@@ -289,11 +289,11 @@ function call() {
 		/*configuration: {iceServers: [
 				{"url":"stun:stun.I.google.com:19302"}
 			]}*/
-		configuration: {iceServers: [
+/*		configuration: {iceServers: [
 				{"urls":"turn:192.158.29.39:3478?transport=udp",
 					"username":"28224511:1379330808",
 					"credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
-			]}
+			]}*/
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 		function(error) {
@@ -308,11 +308,11 @@ function call() {
 function changeMicrophoneStatus() {
 	if (microphoneEnabled) {
 		webRtcPeer.audioEnabled = false;
-		webRtcPeer.showLocalVideo(false);
+		webRtcPeer.localVideo = DISABLED;
 		microphoneEnabled = false;
 	} else {
 		webRtcPeer.audioEnabled = true;
-		webRtcPeer.showLocalVideo(true);
+		webRtcPeer.localVideo = IN_PLAY;
 		microphoneEnabled = true;
 	}
 }
@@ -345,11 +345,11 @@ function play() {
 	var options = {
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate,
-        configuration: {iceServers: [
+/*        configuration: {iceServers: [
                 {"urls":"turn:192.158.29.39:3478?transport=udp",
                 "username":"28224511:1379330808",
                 "credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="}
-            ]}
+            ]}*/
 	};
 	webRtcPeer = new kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
 		function(error) {
