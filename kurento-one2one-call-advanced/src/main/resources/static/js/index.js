@@ -320,10 +320,10 @@ function changeMicrophoneStatus() {
 
 function pauseVideoStream() {
 	if (localVideoPaused){
-		webRtcPeer.resume();
+		webRtcPeer.localVideo = true;
 		localVideoPaused = false;
 	} else {
-		webRtcPeer.pause();
+		webRtcPeer.localVideo = false;
 		localVideoPaused = true;
 	}
 }
