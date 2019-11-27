@@ -21,6 +21,7 @@ var videoOutput;
 var webRtcPeer;
 var from;
 var microphoneEnabled = true;
+var localVideoPaused = false;
 var registerName = null;
 var registerState = null;
 const NOT_REGISTERED = 0;
@@ -314,6 +315,16 @@ function changeMicrophoneStatus() {
 		webRtcPeer.audioEnabled = true;
 		webRtcPeer.localVideo = IN_PLAY;
 		microphoneEnabled = true;
+	}
+}
+
+function pauseVideoStream() {
+	if (localVideoPaused){
+		webRtcPeer.resume();
+		localVideoPaused = false;
+	} else {
+		webRtcPeer.pause();
+		localVideoPaused = true;
 	}
 }
 
