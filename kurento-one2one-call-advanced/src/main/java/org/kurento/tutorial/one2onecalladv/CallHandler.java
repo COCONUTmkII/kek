@@ -18,11 +18,7 @@
 package org.kurento.tutorial.one2onecalladv;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
-
-import org.graalvm.compiler.lir.LIRInstruction;
 import org.kurento.client.EndOfStreamEvent;
 import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
