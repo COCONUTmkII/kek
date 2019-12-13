@@ -18,8 +18,11 @@
 package org.kurento.tutorial.one2onecalladv;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
+import org.graalvm.compiler.lir.LIRInstruction;
 import org.kurento.client.EndOfStreamEvent;
 import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
@@ -83,6 +86,9 @@ public class CallHandler extends TextWebSocketHandler {
       case "play":
         play(user, jsonMessage);
         break;
+      case "pauseVideo":
+        pauseVideo(jsonMessage);
+        break;
       case "onIceCandidate": {
         JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
 
@@ -124,6 +130,20 @@ public class CallHandler extends TextWebSocketHandler {
     response.addProperty("response", responseMsg);
     caller.sendMessage(response);
   }
+
+  private void pauseVideo(JsonObject jsonMessage) throws IOException {
+    String to = jsonMessage.get("to").getAsString();
+    String from = jsonMessage.get("from").getAsString();
+    if (registry.exists(to)){
+      JsonObject response = new JsonObject();
+      UserSession callee = registry.getByName(to);
+      response.addProperty("id", "pauseVideo");
+      response.addProperty("from", from);
+      callee.setCallingFrom(from);
+      callee.sendMessage(response);
+    }
+  }
+
 
   private void call(UserSession caller, JsonObject jsonMessage) throws IOException {
     String to = jsonMessage.get("to").getAsString();

@@ -67,7 +67,8 @@
                                                                              href="#" class="btn btn-warning"><span
                         class="glyphicon glyphicon-play-circle"></span>Play Rec</a>
                     <button class="btn btn-info" onclick="changeMicrophoneStatus();">Mute</button>
-                    <button class="btn btn-danger" onclick="pauseVideoStream();">Pause Video</button>
+                    <a id="pauseVideo" href="#" class="btn btn-danger" onclick="pauseVideo()"></a>
+                    <!--<button id="streamPause" class="btn btn-danger" onclick="pauseVideoStream();">Pause Video</button>-->
                 </div>
             </div>
             <div class="col-md-7">
@@ -79,6 +80,9 @@
                     <video id="videoInput" autoplay width="240px" height="180px"
                            poster="./img/INFIN.png"></video>
                 </div>
+            </div>
+            <div id="posterImage" style="display: none">
+                <img src="./img/INFIN.png">
             </div>
         </div>
 </body>

@@ -139,10 +139,13 @@ ws.onmessage = function(message) {
 					return console.error('Error adding candidate: ' + error);
 			});
 			break;
+		case 'pauseVideo':
+			changePosterImageOnPausedVideo();
+			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
 	}
-}
+};
 
 function registerResponse(message) {
 	if (message.response == 'accepted') {
@@ -282,7 +285,6 @@ function call() {
 	}
 	setCallState(DISABLED);
 	showSpinner(videoInput, videoOutput);
-
 	var options = {
 		localVideo : videoInput,
 		remoteVideo : videoOutput,
@@ -305,27 +307,51 @@ function call() {
 		});
 }
 
-
 function changeMicrophoneStatus() {
 	if (microphoneEnabled) {
 		webRtcPeer.audioEnabled = false;
-		webRtcPeer.localVideo = DISABLED;
 		microphoneEnabled = false;
 	} else {
 		webRtcPeer.audioEnabled = true;
-		webRtcPeer.localVideo = IN_PLAY;
 		microphoneEnabled = true;
 	}
 }
 
-function pauseVideoStream() {
-	if (localVideoPaused){
-		webRtcPeer.localVideo = true;
-		localVideoPaused = false;
-	} else {
-		webRtcPeer.localVideo = false;
-		localVideoPaused = true;
-	}
+function changePosterImageOnPausedVideo() {
+	document.getElementById('videoBig').style.display = 'none';
+	document.getElementById('posterImage').style.display = 'block';
+}
+
+function pauseVideo() {
+		if (localVideoPaused){
+			localVideoPaused = false;
+			webRtcPeer.videoEnabled = true;
+			hideVideoPosterWhenPause();
+		} else {
+			localVideoPaused = true;
+			webRtcPeer.videoEnabled = false;
+			showVideoPosterWhenPause();
+			sendPauseVideoMessage();
+		}
+}
+
+function sendPauseVideoMessage() {
+	let message = {
+		id: 'pauseVideo',
+		from : document.getElementById('name').value,
+		to : document.getElementById('peer').value,
+	};
+	sendMessage(message);
+}
+
+function showVideoPosterWhenPause() {
+	document.getElementById('videoSmall').style.display = 'none';
+	document.getElementById('posterImage').style.display = 'block';
+}
+
+function hideVideoPosterWhenPause() {
+	document.getElementById('videoSmall').style.display = 'block';
+	document.getElementById('posterImage').style.display = 'none';
 }
 
 function onOfferCall(error, offerSdp) {
@@ -350,8 +376,7 @@ function play() {
 	}
 
 	document.getElementById('videoSmall').style.display = 'none';
-	setCallState(DISABLED);
-	showSpinner(videoOutput);
+
 
 	var options = {
 		remoteVideo : videoOutput,
@@ -403,6 +428,7 @@ function stop(message) {
 	}
 	hideSpinner(videoInput, videoOutput);
 	document.getElementById('videoSmall').style.display = 'block';
+	document.getElementById('posterImage').style.display = 'none';
 }
 
 function sendMessage(message) {
