@@ -220,6 +220,8 @@ function incomingCall(message) {
 		showSpinner(videoInput, videoOutput);
 
 		from = message.from;
+		let peerValue = document.getElementById('peer');
+		peerValue.value = from;
 		var options = {
 			localVideo : videoInput,
 			remoteVideo : videoOutput,
@@ -341,6 +343,8 @@ function sendPauseVideoMessage() {
 		from : document.getElementById('name').value,
 		to : document.getElementById('peer').value,
 	};
+    console.log(document.getElementById('peer').value);
+    console.log(document.getElementById('name').value);
 	sendMessage(message);
 }
 
