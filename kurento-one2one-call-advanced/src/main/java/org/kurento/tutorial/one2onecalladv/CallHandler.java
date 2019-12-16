@@ -62,13 +62,11 @@ public class CallHandler extends TextWebSocketHandler {
   public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
     JsonObject jsonMessage = gson.fromJson(message.getPayload(), JsonObject.class);
     UserSession user = registry.getBySession(session);
-
     if (user != null) {
       log.debug("Incoming message from user '{}': {}", user.getName(), jsonMessage);
     } else {
       log.debug("Incoming message from new user: {}", jsonMessage);
     }
-
     switch (jsonMessage.get("id").getAsString()) {
       case "register":
         register(session, jsonMessage);
@@ -89,13 +87,8 @@ public class CallHandler extends TextWebSocketHandler {
         continueVideo(jsonMessage);
         break;
       case "onIceCandidate": {
-        JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
-
         if (user != null) {
-          IceCandidate cand =
-              new IceCandidate(candidate.get("candidate").getAsString(), candidate.get("sdpMid")
-                  .getAsString(), candidate.get("sdpMLineIndex").getAsInt());
-          user.addCandidate(cand);
+            addIceCandidateToUserSession(jsonMessage, user);
         }
         break;
       }
@@ -110,6 +103,15 @@ public class CallHandler extends TextWebSocketHandler {
         break;
     }
   }
+
+  private void addIceCandidateToUserSession(JsonObject jsonMessage, UserSession user){
+      JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
+      IceCandidate cand =
+              new IceCandidate(candidate.get("candidate").getAsString(), candidate.get("sdpMid")
+                      .getAsString(), candidate.get("sdpMLineIndex").getAsInt());
+      user.addCandidate(cand);
+  }
+
 
   private void register(WebSocketSession session, JsonObject jsonMessage) throws IOException {
     String name = jsonMessage.getAsJsonPrimitive("name").getAsString();
@@ -156,19 +158,15 @@ public class CallHandler extends TextWebSocketHandler {
     }
   }
 
-
   private void call(UserSession caller, JsonObject jsonMessage) throws IOException {
     String to = jsonMessage.get("to").getAsString();
     String from = jsonMessage.get("from").getAsString();
     JsonObject response = new JsonObject();
-
     if (registry.exists(to)) {
       caller.setSdpOffer(jsonMessage.getAsJsonPrimitive("sdpOffer").getAsString());
       caller.setCallingTo(to);
-
       response.addProperty("id", "incomingCall");
       response.addProperty("from", from);
-
       UserSession callee = registry.getByName(to);
       callee.sendMessage(response);
       callee.setCallingFrom(from);
@@ -176,7 +174,6 @@ public class CallHandler extends TextWebSocketHandler {
       response.addProperty("id", "callResponse");
       response.addProperty("response", "rejected");
       response.addProperty("message", "user '" + to + "' is not registered");
-
       caller.sendMessage(response);
     }
   }
@@ -197,22 +194,7 @@ public class CallHandler extends TextWebSocketHandler {
 
       callee.setWebRtcEndpoint(callMediaPipeline.getCalleeWebRtcEp());
       callMediaPipeline.getCalleeWebRtcEp().addIceCandidateFoundListener(
-          new EventListener<IceCandidateFoundEvent>() {
-
-            @Override
-            public void onEvent(IceCandidateFoundEvent event) {
-              JsonObject response = new JsonObject();
-              response.addProperty("id", "iceCandidate");
-              response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-              try {
-                synchronized (callee.getSession()) {
-                  callee.getSession().sendMessage(new TextMessage(response.toString()));
-                }
-              } catch (IOException e) {
-                log.debug(e.getMessage());
-              }
-            }
-          });
+              event -> handleCandidateEvent(callee, event));
 
       String calleeSdpOffer = jsonMessage.get("sdpOffer").getAsString();
       String calleeSdpAnswer = callMediaPipeline.generateSdpAnswerForCallee(calleeSdpOffer);
@@ -230,22 +212,7 @@ public class CallHandler extends TextWebSocketHandler {
 
       calleer.setWebRtcEndpoint(callMediaPipeline.getCallerWebRtcEp());
       callMediaPipeline.getCallerWebRtcEp().addIceCandidateFoundListener(
-          new EventListener<IceCandidateFoundEvent>() {
-
-            @Override
-            public void onEvent(IceCandidateFoundEvent event) {
-              JsonObject response = new JsonObject();
-              response.addProperty("id", "iceCandidate");
-              response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-              try {
-                synchronized (calleer.getSession()) {
-                  calleer.getSession().sendMessage(new TextMessage(response.toString()));
-                }
-              } catch (IOException e) {
-                log.debug(e.getMessage());
-              }
-            }
-          });
+              event -> handleCandidateEvent(calleer, event));
 
       String callerSdpAnswer = callMediaPipeline.generateSdpAnswerForCaller(callerSdpOffer);
 
@@ -270,7 +237,26 @@ public class CallHandler extends TextWebSocketHandler {
     }
   }
 
-  public void stop(WebSocketSession session) throws IOException {
+
+    /**
+     * @author Karen Bagratyan. bagratyan@infin.by
+     * @param calleer user session caller that invokes this method
+     * @param event event that passed on Ice
+     */
+    private void handleCandidateEvent(UserSession calleer, IceCandidateFoundEvent event) {
+        JsonObject response = new JsonObject();
+        response.addProperty("id", "iceCandidate");
+        response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
+        try {
+            synchronized (calleer.getSession()) {
+                calleer.getSession().sendMessage(new TextMessage(response.toString()));
+            }
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
+    }
+
+    public void stop(WebSocketSession session) throws IOException {
     // Both users can stop the communication. A 'stopCommunication'
     // message will be sent to the other peer.
     UserSession stopperUser = registry.getBySession(session);
@@ -321,41 +307,19 @@ public class CallHandler extends TextWebSocketHandler {
 
       session.setPlayingWebRtcEndpoint(playMediaPipeline.getWebRtc());
 
-      playMediaPipeline.getPlayer().addEndOfStreamListener(new EventListener<EndOfStreamEvent>() {
-        @Override
-        public void onEvent(EndOfStreamEvent event) {
-          UserSession user = registry.getBySession(session.getSession());
-          releasePipeline(user);
-          playMediaPipeline.sendPlayEnd(session.getSession());
-        }
+      playMediaPipeline.getPlayer().addEndOfStreamListener(event -> {
+        UserSession user1 = registry.getBySession(session.getSession());
+        releasePipeline(user1);
+        playMediaPipeline.sendPlayEnd(session.getSession());
       });
-
-      playMediaPipeline.getWebRtc().addIceCandidateFoundListener(
-          new EventListener<IceCandidateFoundEvent>() {
-
-            @Override
-            public void onEvent(IceCandidateFoundEvent event) {
-              JsonObject response = new JsonObject();
-              response.addProperty("id", "iceCandidate");
-              response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
-              try {
-                synchronized (session) {
-                  session.getSession().sendMessage(new TextMessage(response.toString()));
-                }
-              } catch (IOException e) {
-                log.debug(e.getMessage());
-              }
-            }
-          });
+      playMediaPipeline.getWebRtc().addIceCandidateFoundListener(event -> handleCandidateEvent(session, event));
 
       String sdpOffer = jsonMessage.get("sdpOffer").getAsString();
       String sdpAnswer = playMediaPipeline.generateSdpAnswer(sdpOffer);
-
       response.addProperty("response", "accepted");
-
       response.addProperty("sdpAnswer", sdpAnswer);
-
       playMediaPipeline.play();
+
       pipelines.put(session.getSessionId(), playMediaPipeline.getPipeline());
       synchronized (session.getSession()) {
         session.sendMessage(response);
