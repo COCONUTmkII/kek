@@ -85,6 +85,9 @@ public class CallHandler extends TextWebSocketHandler {
       case "pauseVideo":
         pauseVideo(jsonMessage);
         break;
+      case "continueVideo":
+        continueVideo(jsonMessage);
+        break;
       case "onIceCandidate": {
         JsonObject candidate = jsonMessage.get("candidate").getAsJsonObject();
 
@@ -134,6 +137,19 @@ public class CallHandler extends TextWebSocketHandler {
       JsonObject response = new JsonObject();
       UserSession callee = registry.getByName(to);
       response.addProperty("id", "pauseVideo");
+      response.addProperty("from", from);
+      callee.setCallingFrom(from);
+      callee.sendMessage(response);
+    }
+  }
+
+  private void continueVideo(JsonObject jsonMessage) throws IOException{
+    String to = jsonMessage.get("to").getAsString();
+    String from = jsonMessage.get("from").getAsString();
+    if (registry.exists(to)){
+      JsonObject response = new JsonObject();
+      UserSession callee = registry.getByName(to);
+      response.addProperty("id", "continueVideo");
       response.addProperty("from", from);
       callee.setCallingFrom(from);
       callee.sendMessage(response);

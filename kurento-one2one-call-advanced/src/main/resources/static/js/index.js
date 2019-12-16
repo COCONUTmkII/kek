@@ -140,7 +140,10 @@ ws.onmessage = function(message) {
 			});
 			break;
 		case 'pauseVideo':
-			changePosterImageOnPausedVideo();
+			showPeerPosterImage();
+			break;
+		case 'continueVideo':
+			continueVideo();
 			break;
 		default:
 			console.error('Unrecognized message', parsedMessage);
@@ -319,9 +322,14 @@ function changeMicrophoneStatus() {
 	}
 }
 
-function changePosterImageOnPausedVideo() {
+function showPeerPosterImage() {
 	document.getElementById('videoBig').style.display = 'none';
 	document.getElementById('posterImage').style.display = 'block';
+}
+
+function hidePeerPosterImage() {
+	document.getElementById('videoBig').style.display = 'block';
+	document.getElementById('posterImage').style.display = 'none';
 }
 
 function pauseVideo() {
@@ -329,6 +337,7 @@ function pauseVideo() {
 			localVideoPaused = false;
 			webRtcPeer.videoEnabled = true;
 			hideVideoPosterWhenPause();
+			sendContinueVideoMessage();
 		} else {
 			localVideoPaused = true;
 			webRtcPeer.videoEnabled = false;
@@ -343,8 +352,19 @@ function sendPauseVideoMessage() {
 		from : document.getElementById('name').value,
 		to : document.getElementById('peer').value,
 	};
-    console.log(document.getElementById('peer').value);
-    console.log(document.getElementById('name').value);
+	sendMessage(message);
+}
+
+function continueVideo() {
+	hidePeerPosterImage();
+}
+
+function sendContinueVideoMessage() {
+	let message = {
+		id: 'continueVideo',
+		from: document.getElementById('name').value,
+		to: document.getElementById('peer').value,
+	};
 	sendMessage(message);
 }
 
