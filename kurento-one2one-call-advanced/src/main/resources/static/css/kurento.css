@@ -77,3 +77,12 @@ div.dragged {
 	border-color: blue !important;
 	z-index: 10 !important;
 }
+
+#infinPoster {
+	width: 600px;
+	margin-top: -400px;
+	margin-left: 480px;
+	position: relative;
+	cursor: pointer;
+	z-index: 10;
+}
