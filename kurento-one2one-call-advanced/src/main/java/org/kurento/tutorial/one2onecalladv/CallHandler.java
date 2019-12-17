@@ -19,8 +19,6 @@ package org.kurento.tutorial.one2onecalladv;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
-import org.kurento.client.EndOfStreamEvent;
-import org.kurento.client.EventListener;
 import org.kurento.client.IceCandidate;
 import org.kurento.client.IceCandidateFoundEvent;
 import org.kurento.client.KurentoClient;
@@ -33,7 +31,6 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
