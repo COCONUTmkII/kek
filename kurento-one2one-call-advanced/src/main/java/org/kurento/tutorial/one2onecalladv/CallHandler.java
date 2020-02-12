@@ -237,16 +237,16 @@ public class CallHandler extends TextWebSocketHandler {
 
     /**
      * @author Karen Bagratyan. bagratyan@infin.by
-     * @param calleer user session caller that invokes this method
+     * @param callee user session caller that invokes this method
      * @param event event that passed on Ice
      */
-    private void handleCandidateEvent(UserSession calleer, IceCandidateFoundEvent event) {
+    private void handleCandidateEvent(UserSession callee, IceCandidateFoundEvent event) {
         JsonObject response = new JsonObject();
         response.addProperty("id", "iceCandidate");
         response.add("candidate", JsonUtils.toJsonObject(event.getCandidate()));
         try {
-            synchronized (calleer.getSession()) {
-                calleer.getSession().sendMessage(new TextMessage(response.toString()));
+            synchronized (callee.getSession()) {
+                callee.getSession().sendMessage(new TextMessage(response.toString()));
             }
         } catch (IOException e) {
             log.debug(e.getMessage());

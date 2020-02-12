@@ -331,7 +331,7 @@ function hidePeerPosterImage() {
 	document.getElementById('videoBig').style.display = 'block';
 	document.getElementById('posterImage').style.display = 'none';
 }
-
+//TODO Переделать эту шнягу под Observer по человечески
 function pauseVideo() {
 		if (localVideoPaused){
 			localVideoPaused = false;
@@ -388,6 +388,11 @@ function onOfferCall(error, offerSdp) {
 		to : document.getElementById('peer').value,
 		sdpOffer : offerSdp
 	};
+	sendMessage(message);
+}
+
+function checkIsNewUserSession() {
+	let message = 'checkSession';
 	sendMessage(message);
 }
 
